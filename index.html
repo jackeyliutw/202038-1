@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" crossorigin="anonymous" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk="></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+    
+    <h4 id="h4">輸入暱稱：</h4>
+    <h4><input name="欄位名稱" id="nickname" type="text"><br></h4>
+    <h4>輸入文件名稱：</h4>
+    <h4><input name="欄位名稱" id="filename" type="text"><br></h4>
+    <h4>輸入文字：</h4>
+    <h4><input name="欄位名稱" id="text"" type="text"><br></h4>
+    <button class="btn btn-default" style="margin-top:2%" onclick="recordtext()" type="submit">輸入</button>
+
+
+<!-- test -->
+<p>目前總參與地址:<span id="join_address"></span></p>
+<ol id="join_address">
+
+</ol>
+<!-- test -->
+
+<!-- 選擇鏈 -->
+    <script>
+        if (typeof web3 !== 'undefined') {
+
+          web3 = new Web3(web3.currentProvider);
+          console.log("existing web3: provider " + typeof web3);
+          console.log(web3.currentProvider);
+          
+          } else {
+          // 確認是否使用metamask地址
+          //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+          web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/023b55b06cb04189bffd9f7bdbae18a2"));//test
+
+          alert("Please install metamask");
+        }
+        //
+        // console.log(web3.isConnected());
+        // console.log(web3.eth.account[0]);
+        //
+        var myContract;
+        var coinbase;
+
+
+        async function attachcontract () {
+          coinbase = await web3.eth.getCoinbase();
+          var contract_address = "0x8E6F5D5913cd79517D8FD656d0251DCF7CDd6f2C";//合約位置
+          var contract_abi = [{ "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "articlenumber", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "author", "type": "address" }, { "indexed": false, "internalType": "string", "name": "nickname", "type": "string" }, { "indexed": false, "internalType": "string", "name": "filename", "type": "string" }, { "indexed": false, "internalType": "string", "name": "text", "type": "string" } ], "name": "recordmsg", "type": "event" }, { "inputs": [ { "internalType": "string", "name": "nickname", "type": "string" }, { "internalType": "string", "name": "filename", "type": "string" }, { "internalType": "string", "name": "text", "type": "string" } ], "name": "submittext", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "articlenumber", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" } ]
+          myContract = new web3.eth.Contract(contract_abi, contract_address);
+          
+          var contract_investors = await myContract.methods.articlenumber().call({from: '0x6500111a2fdb8d5d1e0f6ac19988fc7d16201f82'});//from任意地址?
+
+$("#join_address").text(contract_investors);
+
+        }
+        attachcontract();
+
+//<!-- 紀錄的函式 -->
+        
+        function recordtext () {
+          var nickname = document.getElementById("nickname").value;
+          var filename = document.getElementById("filename").value;
+          var text = document.getElementById("text").value;
+          myContract.methods.submittext(nickname,filename,text).send({ from: coinbase }).then(function (receipt) {alert("成功紀錄文字 upload finished"); });
+        }
+        
+        // var ProfContract =  web3.eth.contract(contract_abi);
+        // var contractInstance = ProfContract.at(contract_address);
+        //console.log(contract_address);
+        // var event = myContract.recordtext({}, {fromBlock: 0,     toBlock: 'latest'});
+        // event.watch(function(error,result){
+        //   if(!error) {
+        //     console.log("Block Number: " = result.blockNumber);
+        //   }
+        // });
+
+//         //
+//         function getPastEvents(){
+//           const results =  myContract.getPastEvents('recordtext',{
+//     fromBlock: 0,
+//     toBlock: 'latest'
+// }, function(error, events){ console.log(events); })
+// .then(function(events){
+//     console.log(events);
+// });
+
+//         // myContract.getPastEvents('recordmsg', {fromBlock: 0, toBlock: 'latest'});
+
+//         // $("#join_address").text(events);
+//         //     $("ol").append("<li></li>");
+//         }
+//         getPastEvents();
+            // for (i=0;i<=100;i++){
+            //    contract_investors = await myContract.methods.investors(i).call({from: '0x6500111a2fdb8d5d1e0f6ac19988fc7d16201f82'});
+            //     $("ol").append(contract_investors);
+            //     $("ol").append("<li></li>");
+            //     };
+            
+            // var event = myContract.recordtext({}, {fromBlock: 0,     toBlock: 'latest'});
+        // depositeEvent.watch(function(error,result){
+        //   if(!error) {
+        //     console.log("Block Number: ");
+        //   }
+        // });
+
+            
+    </script>
+</body>
+</html>
+
+ <!-- myContract.getPastEvents('recordmsg', {
+//   //filter: {myIndexedParam: [20,23], myOtherIndexedParam: '0x123456789...'},
+//   fromBlock: 0,
+//   toBlock: 'latest'
+// }, function(error, events){ console.log(events); })
+// .then(function(events){
+//   console.log(events);
+// })
+
+
+
+// var contract_investors = await myContract.methods.investors(0).call({from: '0x6500111a2fdb8d5d1e0f6ac19988fc7d16201f82'});//from任意地址?
+
+//             $("#join_address").text(contract_investors);
+//             $("ol").append("<li></li>");
+//             for (i=0;i<=100;i++){
+//                 contract_investors = await myContract.methods.investors(i).call({from: '0x6500111a2fdb8d5d1e0f6ac19988fc7d16201f82'});
+//                 $("ol").append(contract_investors);
+//                 $("ol").append("<li></li>");
+//                 };
+//             }; -->
